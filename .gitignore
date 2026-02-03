@@ -1,0 +1,126 @@
+# Smart Classroom Face Recognition System - Git Ignore
+
+# ===========================
+# Environment & Secrets
+# ===========================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===========================
+# Virtual Environment
+# ===========================
+venv/
+ENV/
+env/
+.venv/
+
+# ===========================
+# IDE & Editors
+# ===========================
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# VS Code - keep settings but ignore personal configs
+!.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ===========================
+# OS Generated
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===========================
+# Logs & Databases
+# ===========================
+*.log
+*.sqlite
+*.db
+logs/
+
+# ===========================
+# ML Model Weights (large files)
+# ===========================
+# Uncomment if you don't want to track model weights
+# ml/*/weights/*.onnx
+# ml/*/weights/*.pth
+
+# ===========================
+# Datasets (usually too large)
+# ===========================
+# Uncomment if datasets should not be tracked
+# datasets/
+
+# ===========================
+# Testing & Coverage
+# ===========================
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+
+# ===========================
+# Jupyter Notebooks
+# ===========================
+.ipynb_checkpoints/
+*.ipynb
+
+# ===========================
+# Build artifacts
+# ===========================
+*.manifest
+*.spec
+
+# Large ML model weights (download separately)
+ml/recognition/adaface/weights/*.ckpt
+ml/recognition/adaface/weights/*.safetensors
+ml/recognition/adaface/weights/models--*
+ml/recognition/arcface/weights/*.pth
+ml/detection/scrfd/weights/*.onnx
+ml/detection/yolov12/weights/*.pt
+datasets/face_features/*.npz
+datasets/

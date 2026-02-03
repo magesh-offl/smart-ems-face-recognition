@@ -1,0 +1,161 @@
+### Smart Classroom API - Recognition Endpoints
+### Use with VS Code REST Client extension
+### Variables are loaded from .env file
+
+@baseUrl = http://{{$dotenv API_HOST}}:{{$dotenv API_PORT}}
+@apiKey = {{$dotenv API_KEY}}
+
+### ===========================================
+### Single Recognition Endpoints
+### ===========================================
+
+### Save face recognition
+POST {{baseUrl}}/api/v1/recognition/save
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "person_name": "John Doe",
+    "camera_id": "camera_01",
+    "confidence_score": 0.95
+}
+
+###
+
+### Get all recognition logs
+GET {{baseUrl}}/api/v1/recognition/logs?skip=0&limit=10
+X-API-Key: {{apiKey}}
+
+###
+
+### Get specific recognition log by ID
+# Replace {log_id} with actual ID from database
+@logId = YOUR_LOG_ID_HERE
+GET {{baseUrl}}/api/v1/recognition/logs/{{logId}}
+X-API-Key: {{apiKey}}
+
+###
+
+### Filter recognition logs
+GET {{baseUrl}}/api/v1/recognition/filter?person_name=John&camera_id=camera_01&skip=0&limit=10
+X-API-Key: {{apiKey}}
+
+###
+
+### Filter by date range
+GET {{baseUrl}}/api/v1/recognition/filter?start_date=2024-01-01&end_date=2024-12-31&skip=0&limit=10
+X-API-Key: {{apiKey}}
+
+###
+
+### Update recognition log
+# Replace logId above with actual log ID
+PUT {{baseUrl}}/api/v1/recognition/logs/{{logId}}
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "person_name": "Updated Name",
+    "confidence_score": 0.98
+}
+
+###
+
+### Delete recognition log
+# Replace logId above with actual log ID
+DELETE {{baseUrl}}/api/v1/recognition/logs/{{logId}}
+X-API-Key: {{apiKey}}
+
+### ===========================================
+### Batch Recognition Endpoints
+### ===========================================
+
+### Process image for batch face recognition
+POST {{baseUrl}}/api/v1/recognition/batch/process
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "image_path": "/media/magesh/NewVolume4/Images/Training/ICC 2011/Team.webp"
+}
+
+###
+
+POST {{baseUrl}}/api/v1/recognition/batch/process
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "image_path": "/media/magesh/NewVolume4/Images/Training/ICC 2011/squad.jpg"
+}
+
+###
+
+### Get batch results by batch ID
+# Replace with actual batch ID from process response
+@batchId = YOUR_BATCH_ID_HERE
+GET {{baseUrl}}/api/v1/recognition/batch/{{batchId}}
+X-API-Key: {{apiKey}}
+
+###
+
+### Get all batch summaries
+GET {{baseUrl}}/api/v1/recognition/batches?skip=0&limit=10
+X-API-Key: {{apiKey}}
+
+###
+
+### ⚠️ DELETE all batch recognition logs (DANGEROUS!)
+DELETE {{baseUrl}}/api/v1/recognition/batches
+X-API-Key: {{apiKey}}
+
+
+
+### ===========================================
+### Add Persons Endpoints
+### ===========================================
+
+### Add persons from default folder (datasets/new_persons/)
+POST {{baseUrl}}/api/v1/recognition/persons/add
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "source_path": null,
+    "move_to_backup": true
+}
+
+
+### Add persons from specific folder (folder path)
+POST {{baseUrl}}/api/v1/recognition/persons/add
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "source_path": "/media/magesh/NewVolume4/Images/Training/ICC 2011/Players",
+    "move_to_backup": true
+}
+
+###
+
+
+
+
+POST {{baseUrl}}/api/v1/recognition/batch/process
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "image_path": "/media/magesh/NewVolume4/Images/Training/ICC 2011/squad.jpg"
+}
+
+
+
+### Get all known persons in database
+GET {{baseUrl}}/api/v1/recognition/persons
+X-API-Key: {{apiKey}}
+
+
+### ⚠️ DELETE all batch recognition logs (DANGEROUS!)
+DELETE {{baseUrl}}/api/v1/recognition/batches
+X-API-Key: {{apiKey}}
