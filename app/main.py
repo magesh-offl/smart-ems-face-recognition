@@ -2,8 +2,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
-from app.api.v1 import auth, recognition
-from app.core.exceptions import register_exception_handlers
+from app.api.v1.auth import router as auth_router
+from app.api.v1.recognition import router as recognition_router
+from app.middleware import register_exception_handlers
 from app.utils.logger import setup_logger
 
 # Setup logger
@@ -35,8 +36,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth.router)
-app.include_router(recognition.router)
+app.include_router(auth_router)
+app.include_router(recognition_router)
 
 
 @app.get("/", tags=["Root"])

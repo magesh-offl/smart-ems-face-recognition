@@ -1,22 +1,26 @@
-### Smart Classroom API - Authentication Endpoints
+### ===========================================
+### Face Recognition API - Authentication
 ### Use with VS Code REST Client extension
-### Variables are loaded from .env file
+### ===========================================
 
 @baseUrl = http://{{$dotenv API_HOST}}:{{$dotenv API_PORT}}
-@apiKey = {{$dotenv API_KEY}}
+
 
 ### ===========================================
 ### Health Check
 ### ===========================================
 
-### Check server health
+### Server health
 GET {{baseUrl}}/health
 
-### Root endpoint
+###
+
+### Root
 GET {{baseUrl}}/
 
+
 ### ===========================================
-### User Registration & Login
+### Authentication
 ### ===========================================
 
 ### Register new user
@@ -30,7 +34,7 @@ Content-Type: application/json
 
 ###
 
-### Login user
+### Login
 POST {{baseUrl}}/api/v1/auth/login
 Content-Type: application/json
 

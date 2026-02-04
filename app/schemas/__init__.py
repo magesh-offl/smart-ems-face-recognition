@@ -1,52 +1,74 @@
-"""MongoDB Collection Schemas"""
-from datetime import datetime
-from typing import Optional
+"""Schemas Package - API Request/Response Validation
 
+This package contains Pydantic models for API validation, organized by:
+- requests/: Input validation schemas
+- responses/: Output formatting schemas  
+- filters/: Query filter schemas
+"""
 
-class RecognitionLogSchema:
-    """MongoDB schema for recognition logs"""
-    collection_name = "recognition_logs"
-    
-    @staticmethod
-    def get_document(person_name: str, camera_id: str, 
-                    confidence_score: Optional[float] = None):
-        """Get MongoDB document structure"""
-        return {
-            "person_name": person_name,
-            "camera_id": camera_id,
-            "timestamp": datetime.utcnow(),
-            "confidence_score": confidence_score,
-            "detection_count": 1,
-            "last_detection_time": datetime.utcnow(),
-        }
+# Base schemas
+from .base import (
+    TimestampMixin,
+    PaginationParams,
+    SuccessResponse,
+    ErrorResponse
+)
 
+# Request schemas
+from .requests import (
+    RecognitionLogCreate,
+    RecognitionLogUpdate,
+    BatchRecognitionRequest,
+    AddPersonsRequest,
+    UserCreate,
+    UserUpdate,
+    LoginRequest,
+    APIKeyCreate,
+)
 
-class UserSchema:
-    """MongoDB schema for users"""
-    collection_name = "users"
-    
-    @staticmethod
-    def get_document(username: str, hashed_password: str):
-        """Get MongoDB document structure"""
-        return {
-            "username": username,
-            "hashed_password": hashed_password,
-            "created_at": datetime.utcnow(),
-            "is_active": True,
-        }
+# Response schemas
+from .responses import (
+    RecognitionLogResponse,
+    FaceLocation,
+    BatchRecognitionResult,
+    BatchRecognitionResponse,
+    AddPersonsResponse,
+    UserResponse,
+    TokenResponse,
+    APIKeyResponse,
+)
 
+# Filter schemas
+from .filters import (
+    RecognitionLogFilter,
+    BatchRecognitionFilter,
+)
 
-class APIKeySchema:
-    """MongoDB schema for API keys"""
-    collection_name = "api_keys"
-    
-    @staticmethod
-    def get_document(name: str, key: str, description: Optional[str] = None):
-        """Get MongoDB document structure"""
-        return {
-            "name": name,
-            "key": key,
-            "description": description,
-            "created_at": datetime.utcnow(),
-            "is_active": True,
-        }
+__all__ = [
+    # Base
+    "TimestampMixin",
+    "PaginationParams",
+    "SuccessResponse",
+    "ErrorResponse",
+    # Requests
+    "RecognitionLogCreate",
+    "RecognitionLogUpdate",
+    "BatchRecognitionRequest",
+    "AddPersonsRequest",
+    "UserCreate",
+    "UserUpdate",
+    "LoginRequest",
+    "APIKeyCreate",
+    # Responses
+    "RecognitionLogResponse",
+    "FaceLocation",
+    "BatchRecognitionResult",
+    "BatchRecognitionResponse",
+    "AddPersonsResponse",
+    "UserResponse",
+    "TokenResponse",
+    "APIKeyResponse",
+    # Filters
+    "RecognitionLogFilter",
+    "BatchRecognitionFilter",
+]

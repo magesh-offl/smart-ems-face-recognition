@@ -1,12 +1,14 @@
-### Smart Classroom API - Recognition Endpoints
+### ===========================================
+### Face Recognition API - Recognition Endpoints
 ### Use with VS Code REST Client extension
-### Variables are loaded from .env file
+### ===========================================
 
 @baseUrl = http://{{$dotenv API_HOST}}:{{$dotenv API_PORT}}
 @apiKey = {{$dotenv API_KEY}}
 
+
 ### ===========================================
-### Single Recognition Endpoints
+### Single Recognition CRUD
 ### ===========================================
 
 ### Save face recognition
@@ -28,28 +30,26 @@ X-API-Key: {{apiKey}}
 
 ###
 
-### Get specific recognition log by ID
-# Replace {log_id} with actual ID from database
+### Get specific log by ID
 @logId = YOUR_LOG_ID_HERE
 GET {{baseUrl}}/api/v1/recognition/logs/{{logId}}
 X-API-Key: {{apiKey}}
 
 ###
 
-### Filter recognition logs
+### Filter logs by person/camera
 GET {{baseUrl}}/api/v1/recognition/filter?person_name=John&camera_id=camera_01&skip=0&limit=10
 X-API-Key: {{apiKey}}
 
 ###
 
 ### Filter by date range
-GET {{baseUrl}}/api/v1/recognition/filter?start_date=2024-01-01&end_date=2024-12-31&skip=0&limit=10
+GET {{baseUrl}}/api/v1/recognition/filter?start_date=2024-01-01&end_date=2024-12-31
 X-API-Key: {{apiKey}}
 
 ###
 
-### Update recognition log
-# Replace logId above with actual log ID
+### Update log
 PUT {{baseUrl}}/api/v1/recognition/logs/{{logId}}
 Content-Type: application/json
 X-API-Key: {{apiKey}}
@@ -61,26 +61,16 @@ X-API-Key: {{apiKey}}
 
 ###
 
-### Delete recognition log
-# Replace logId above with actual log ID
+### Delete log
 DELETE {{baseUrl}}/api/v1/recognition/logs/{{logId}}
 X-API-Key: {{apiKey}}
 
+
 ### ===========================================
-### Batch Recognition Endpoints
+### Batch Recognition
 ### ===========================================
 
-### Process image for batch face recognition
-POST {{baseUrl}}/api/v1/recognition/batch/process
-Content-Type: application/json
-X-API-Key: {{apiKey}}
-
-{
-    "image_path": "/media/magesh/NewVolume4/Images/Training/ICC 2011/Team.webp"
-}
-
-###
-
+### Process image for face recognition
 POST {{baseUrl}}/api/v1/recognition/batch/process
 Content-Type: application/json
 X-API-Key: {{apiKey}}
@@ -91,42 +81,47 @@ X-API-Key: {{apiKey}}
 
 ###
 
-### Get batch results by batch ID
-# Replace with actual batch ID from process response
+### Get batch results by ID
 @batchId = YOUR_BATCH_ID_HERE
 GET {{baseUrl}}/api/v1/recognition/batch/{{batchId}}
 X-API-Key: {{apiKey}}
 
 ###
 
-### Get all batch summaries
+### Get all batches
 GET {{baseUrl}}/api/v1/recognition/batches?skip=0&limit=10
 X-API-Key: {{apiKey}}
 
 ###
 
-### ⚠️ DELETE all batch recognition logs (DANGEROUS!)
+### ⚠️ Delete ALL batches
 DELETE {{baseUrl}}/api/v1/recognition/batches
 X-API-Key: {{apiKey}}
 
 
-
 ### ===========================================
-### Add Persons Endpoints
+### Add Persons to Database
 ### ===========================================
 
-### Add persons from default folder (datasets/new_persons/)
+### Add from default folder (datasets/new_persons/)
 POST {{baseUrl}}/api/v1/recognition/persons/add
 Content-Type: application/json
 X-API-Key: {{apiKey}}
 
 {
-    "source_path": null,
     "move_to_backup": true
 }
 
+###
+POST {{baseUrl}}/api/v1/recognition/batch/process
+Content-Type: application/json
+X-API-Key: {{apiKey}}
 
-### Add persons from specific folder (folder path)
+{
+    "image_path": "/media/magesh/NewVolume4/Images/Training/ICC 2011/squad.jpg"
+}
+
+### Add from custom folder
 POST {{baseUrl}}/api/v1/recognition/persons/add
 Content-Type: application/json
 X-API-Key: {{apiKey}}
@@ -138,24 +133,6 @@ X-API-Key: {{apiKey}}
 
 ###
 
-
-
-
-POST {{baseUrl}}/api/v1/recognition/batch/process
-Content-Type: application/json
-X-API-Key: {{apiKey}}
-
-{
-    "image_path": "/media/magesh/NewVolume4/Images/Training/ICC 2011/squad.jpg"
-}
-
-
-
-### Get all known persons in database
+### Get all known persons
 GET {{baseUrl}}/api/v1/recognition/persons
-X-API-Key: {{apiKey}}
-
-
-### ⚠️ DELETE all batch recognition logs (DANGEROUS!)
-DELETE {{baseUrl}}/api/v1/recognition/batches
 X-API-Key: {{apiKey}}
