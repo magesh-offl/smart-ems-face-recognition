@@ -145,7 +145,7 @@ class BatchRecognitionService(IBatchRecognitionService):
         """
         self.repo = repository
     
-    def process_image(self, image_path: str) -> Dict[str, Any]:
+    async def process_image(self, image_path: str) -> Dict[str, Any]:
         """
         Process an image for face recognition.
         
@@ -256,7 +256,7 @@ class BatchRecognitionService(IBatchRecognitionService):
         
         # Save to database
         if documents:
-            inserted_ids = self.repo.save_batch_logs(documents)
+            inserted_ids = await self.repo.save_batch_logs(documents)
             # Add IDs to results
             for i, result in enumerate(results):
                 result["_id"] = inserted_ids[i]
@@ -275,17 +275,17 @@ class BatchRecognitionService(IBatchRecognitionService):
             "results": results
         }
     
-    def get_batch_results(self, batch_id: str) -> Optional[Dict[str, Any]]:
+    async def get_batch_results(self, batch_id: str) -> Optional[Dict[str, Any]]:
         """Get results for a specific batch"""
-        return self.repo.get_batch_summary(batch_id)
+        return await self.repo.get_batch_summary(batch_id)
     
-    def get_all_batches(self, skip: int = 0, limit: int = 10) -> List[Dict[str, Any]]:
+    async def get_all_batches(self, skip: int = 0, limit: int = 10) -> List[Dict[str, Any]]:
         """Get all batch summaries"""
-        return self.repo.get_all_batches(skip, limit)
+        return await self.repo.get_all_batches(skip, limit)
     
-    def delete_all_batches(self) -> Dict[str, Any]:
+    async def delete_all_batches(self) -> Dict[str, Any]:
         """Delete all batch recognition logs"""
-        deleted_count = self.repo.delete_all()
+        deleted_count = await self.repo.delete_all()
         return {
             "success": True,
             "deleted_count": deleted_count,

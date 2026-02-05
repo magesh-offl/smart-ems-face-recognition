@@ -1,4 +1,4 @@
-"""Recognition API Routes"""
+"""Recognition API Routes - Async"""
 from fastapi import APIRouter, HTTPException, status, Query, Depends
 from typing import Optional
 from datetime import datetime
@@ -37,7 +37,7 @@ async def save_recognition(
     controller: RecognitionController = Depends(get_recognition_controller)
 ):
     """Save face recognition data."""
-    return controller.save_recognition(data.person_name, data.camera_id, data.confidence_score)
+    return await controller.save_recognition(data.person_name, data.camera_id, data.confidence_score)
 
 
 @router.get("/logs/{log_id}", response_model=RecognitionLogResponse)
@@ -47,7 +47,10 @@ async def get_log(
     controller: RecognitionController = Depends(get_recognition_controller)
 ):
     """Get a specific recognition log by ID."""
-    return controller.get_recognition_log(log_id)
+    log = await controller.get_log(log_id)
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    return log
 
 
 @router.get("/logs", response_model=dict)
@@ -58,7 +61,7 @@ async def get_all_logs(
     controller: RecognitionController = Depends(get_recognition_controller)
 ):
     """Get all recognition logs with pagination."""
-    return controller.get_all_logs(skip, limit)
+    return await controller.get_logs(skip=skip, limit=limit)
 
 
 @router.get("/filter", response_model=dict)
@@ -75,7 +78,7 @@ async def filter_logs(
     """Filter recognition logs by person, camera, and date range."""
     start_dt = datetime.fromisoformat(start_date) if start_date else None
     end_dt = datetime.fromisoformat(end_date) if end_date else None
-    return controller.filter_logs(person_name, camera_id, start_dt, end_dt, skip, limit)
+    return await controller.get_logs(person_name, camera_id, start_dt, end_dt, skip, limit)
 
 
 @router.put("/logs/{log_id}", response_model=dict)
@@ -86,7 +89,7 @@ async def update_log(
     controller: RecognitionController = Depends(get_recognition_controller)
 ):
     """Update a recognition log."""
-    return controller.update_log(log_id, data)
+    return await controller.update_log(log_id, data.person_name, data.camera_id, data.confidence_score)
 
 
 @router.delete("/logs/{log_id}", response_model=dict)
@@ -96,7 +99,7 @@ async def delete_log(
     controller: RecognitionController = Depends(get_recognition_controller)
 ):
     """Delete a recognition log."""
-    return controller.delete_log(log_id)
+    return await controller.delete_log(log_id)
 
 
 # Batch Recognition Endpoints
@@ -107,7 +110,7 @@ async def process_batch(
     controller: BatchRecognitionController = Depends(get_batch_controller)
 ):
     """Process an image for face recognition."""
-    return controller.process_image(data.image_path)
+    return await controller.process_image(data.image_path)
 
 
 @router.get("/batch/{batch_id}", response_model=dict)
@@ -117,7 +120,10 @@ async def get_batch_results(
     controller: BatchRecognitionController = Depends(get_batch_controller)
 ):
     """Get results for a specific batch."""
-    return controller.get_batch_results(batch_id)
+    result = await controller.get_batch_results(batch_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    return result
 
 
 @router.get("/batches", response_model=dict)
@@ -128,7 +134,8 @@ async def get_all_batches(
     controller: BatchRecognitionController = Depends(get_batch_controller)
 ):
     """Get all batch recognition summaries."""
-    return controller.get_all_batches(skip, limit)
+    batches = await controller.get_all_batches(skip, limit)
+    return {"success": True, "batches": batches, "count": len(batches)}
 
 
 @router.delete("/batches", response_model=dict)
@@ -137,7 +144,7 @@ async def delete_all_batches(
     controller: BatchRecognitionController = Depends(get_batch_controller)
 ):
     """Delete ALL batch recognition logs."""
-    return controller.delete_all_batches()
+    return await controller.delete_all()
 
 
 # Add Persons Endpoints

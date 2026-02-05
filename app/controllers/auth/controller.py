@@ -1,23 +1,18 @@
-"""Auth Controller"""
-from app.services.auth import AuthService
-from app.schemas import TokenResponse
+"""Async Auth Controller"""
+from app.services.auth.service import AuthService
+from app.schemas import UserCreate
 
 
 class AuthController:
-    """Controller for authentication operations."""
+    """Async controller for authentication."""
     
     def __init__(self, service: AuthService):
         self.service = service
     
-    def register(self, username: str, password: str) -> dict:
-        """Register a new user."""
-        user_id = self.service.register_user(username, password)
-        return {"success": True, "user_id": user_id, "message": f"User {username} registered"}
+    async def register(self, request: UserCreate) -> dict:
+        """Register new user."""
+        return await self.service.register(request.username, request.password)
     
-    def login(self, username: str, password: str) -> TokenResponse:
-        """Login and get access token."""
-        token = self.service.login_user(username, password)
-        return TokenResponse(
-            access_token=token,
-            expires_in=self.service.settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
-        )
+    async def login(self, request: UserCreate) -> dict:
+        """Login user."""
+        return await self.service.login(request.username, request.password)

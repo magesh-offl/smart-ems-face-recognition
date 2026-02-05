@@ -16,7 +16,7 @@ class BatchRecognitionResult(BaseModel):
     """Single detection result from batch recognition"""
     id: Optional[str] = Field(None, alias="_id")
     person_name: str
-    detection_datetime: datetime
+    detection_datetime: Optional[datetime] = None
     confidence_score: float
     face_location: FaceLocation
     

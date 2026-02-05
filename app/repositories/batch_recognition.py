@@ -1,4 +1,4 @@
-"""Batch Recognition Repository"""
+"""Async Batch Recognition Repository"""
 from typing import List, Optional, Dict, Any
 
 from app.repositories.base import BaseRepository
@@ -6,25 +6,26 @@ from app.models import BatchRecognitionLogDocument
 
 
 class BatchRecognitionRepository(BaseRepository):
-    """Repository for batch recognition logs."""
+    """Async repository for batch recognition logs."""
     
     def __init__(self):
         super().__init__(BatchRecognitionLogDocument.collection_name)
     
-    def save_batch_logs(self, logs: List[Dict[str, Any]]) -> List[str]:
+    async def save_batch_logs(self, logs: List[Dict[str, Any]]) -> List[str]:
         """Save multiple detection logs at once."""
         if not logs:
             return []
-        result = self.collection.insert_many(logs)
+        coll = await self._get_collection()
+        result = await coll.insert_many(logs)
         return [str(id) for id in result.inserted_ids]
     
-    def get_logs_by_batch_id(self, batch_id: str) -> List[Dict[str, Any]]:
+    async def get_logs_by_batch_id(self, batch_id: str) -> List[Dict[str, Any]]:
         """Get all logs for a specific batch."""
-        return self.find_many({"batch_id": batch_id}, skip=0, limit=100)
+        return await self.find_many({"batch_id": batch_id}, skip=0, limit=100)
     
-    def get_batch_summary(self, batch_id: str) -> Optional[Dict[str, Any]]:
+    async def get_batch_summary(self, batch_id: str) -> Optional[Dict[str, Any]]:
         """Get summary for a batch."""
-        logs = self.get_logs_by_batch_id(batch_id)
+        logs = await self.get_logs_by_batch_id(batch_id)
         if not logs:
             return None
         first = logs[0]
@@ -37,8 +38,9 @@ class BatchRecognitionRepository(BaseRepository):
             "logs": logs
         }
     
-    def get_all_batches(self, skip: int = 0, limit: int = 10) -> List[Dict[str, Any]]:
+    async def get_all_batches(self, skip: int = 0, limit: int = 10) -> List[Dict[str, Any]]:
         """Get unique batch summaries with pagination."""
+        coll = await self._get_collection()
         pipeline = [
             {"$group": {
                 "_id": "$batch_id",
@@ -52,8 +54,11 @@ class BatchRecognitionRepository(BaseRepository):
             {"$skip": skip},
             {"$limit": limit}
         ]
-        return list(self.collection.aggregate(pipeline))
+        cursor = coll.aggregate(pipeline)
+        return await cursor.to_list(length=limit)
     
-    def delete_all(self) -> int:
+    async def delete_all(self) -> int:
         """Delete all batch recognition logs."""
-        return self.collection.delete_many({}).deleted_count
+        coll = await self._get_collection()
+        result = await coll.delete_many({})
+        return result.deleted_count

@@ -1,58 +1,55 @@
-"""Authentication Service"""
+"""Async Auth Service"""
+from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
-from typing import Optional
-from functools import lru_cache
-
-import jwt
 from passlib.context import CryptContext
+import jwt
 
 from app.config import get_settings
 from app.repositories.user import UserRepository
-from app.utils.exceptions import AuthenticationException, BadRequestException
+from app.utils.exceptions import AuthenticationException
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class AuthService:
-    """Service for authentication operations."""
+    """Async service for authentication."""
     
-    def __init__(self):
-        self.user_repo = UserRepository()
+    def __init__(self, user_repository: UserRepository):
+        self.user_repo = user_repository
         self.settings = get_settings()
     
-    def hash_password(self, password: str) -> str:
-        """Hash password using bcrypt."""
+    def _hash_password(self, password: str) -> str:
+        """Hash password."""
         return pwd_context.hash(password)
     
-    def verify_password(self, plain: str, hashed: str) -> bool:
-        """Verify password against hash."""
+    def _verify_password(self, plain: str, hashed: str) -> bool:
+        """Verify password."""
         return pwd_context.verify(plain, hashed)
     
-    def create_access_token(self, username: str) -> str:
-        """Create JWT access token."""
-        payload = {
-            "sub": username,
-            "exp": datetime.utcnow() + timedelta(minutes=self.settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        }
-        return jwt.encode(payload, self.settings.SECRET_KEY, algorithm=self.settings.ALGORITHM)
+    def _create_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> str:
+        """Create access token."""
+        expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+        return jwt.encode({**data, "exp": expire}, self.settings.SECRET_KEY, algorithm=self.settings.ALGORITHM)
     
-    def verify_token(self, token: str) -> Optional[str]:
-        """Verify JWT token and return username."""
-        try:
-            payload = jwt.decode(token, self.settings.SECRET_KEY, algorithms=[self.settings.ALGORITHM])
-            return payload.get("sub")
-        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-            return None
-    
-    def register_user(self, username: str, password: str) -> str:
+    async def register(self, username: str, password: str) -> Dict[str, Any]:
         """Register new user."""
-        if self.user_repo.user_exists(username):
-            raise BadRequestException(f"User {username} already exists")
-        return self.user_repo.create_user(username, self.hash_password(password))
+        if await self.user_repo.user_exists(username):
+            raise AuthenticationException("Username already exists")
+        user_id = await self.user_repo.create_user(username, self._hash_password(password))
+        return {"id": user_id, "username": username, "message": "User registered successfully"}
     
-    def login_user(self, username: str, password: str) -> str:
-        """Authenticate user and return token."""
-        user = self.user_repo.get_user_by_username(username)
-        if not user or not self.verify_password(password, user["hashed_password"]):
+    async def login(self, username: str, password: str) -> Dict[str, Any]:
+        """Login user."""
+        user = await self.user_repo.get_user_by_username(username)
+        if not user or not self._verify_password(password, user["hashed_password"]):
             raise AuthenticationException("Invalid credentials")
-        return self.create_access_token(username)
+        token = self._create_token(
+            {"sub": username},
+            timedelta(minutes=self.settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "expires_in": self.settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        }

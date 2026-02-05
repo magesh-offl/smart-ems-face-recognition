@@ -1,4 +1,4 @@
-"""Authentication API Routes"""
+"""Authentication API Routes - Async"""
 from fastapi import APIRouter, Depends
 
 from app.controllers.auth import AuthController
@@ -18,7 +18,7 @@ async def register(
     controller: AuthController = Depends(get_auth_controller)
 ):
     """Register a new user."""
-    return controller.register(user_data.username, user_data.password)
+    return await controller.register(user_data)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -27,4 +27,4 @@ async def login(
     controller: AuthController = Depends(get_auth_controller)
 ):
     """Login with username and password. Returns JWT access token."""
-    return controller.login(user_data.username, user_data.password)
+    return await controller.login(user_data)
