@@ -1,0 +1,8 @@
+
+# ML Model Weights (large files - download separately)
+ml/detection/scrfd/weights/*.onnx
+ml/detection/yolov12/weights/*.pt
+ml/recognition/adaface/weights/*.ckpt
+ml/recognition/adaface/weights/*.safetensors
+ml/recognition/adaface/weights/models--*
+ml/recognition/arcface/weights/*.pth

@@ -1,0 +1,68 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.statCard {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.statCard:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.statIcon {
+    font-size: 2rem;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.sectionTitle {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.emptyState {
+    margin: 0;
+    padding: 2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+}

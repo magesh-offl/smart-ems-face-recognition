@@ -2,11 +2,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "FastAPI Server",
+            "name": "Backend: FastAPI",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
-            "python": "${workspaceFolder}/venv/bin/python",
+            "python": "${workspaceFolder}/backend/venv/bin/python",
             "args": [
                 "app.main:app",
                 "--reload",
@@ -18,88 +18,52 @@
             "jinja": true,
             "justMyCode": true,
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}/backend"
             },
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/backend",
             "console": "integratedTerminal"
         },
         {
-            "name": "Face Recognition (Webcam)",
+            "name": "Backend: Webcam Recognition",
             "type": "debugpy",
             "request": "launch",
-            "python": "${workspaceFolder}/venv/bin/python",
-            "program": "${workspaceFolder}/scripts/recognize.py",
+            "python": "${workspaceFolder}/backend/venv/bin/python",
+            "program": "${workspaceFolder}/backend/scripts/recognize.py",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}/backend"
             },
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/backend",
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
-            "name": "Face Recognition with API",
+            "name": "Backend: Add Persons",
             "type": "debugpy",
             "request": "launch",
-            "python": "${workspaceFolder}/venv/bin/python",
-            "program": "${workspaceFolder}/scripts/recognize_with_api.py",
+            "python": "${workspaceFolder}/backend/venv/bin/python",
+            "program": "${workspaceFolder}/backend/scripts/add_persons.py",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}/backend"
             },
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/backend",
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
-            "name": "Add Persons",
-            "type": "debugpy",
+            "name": "Frontend: Chrome",
+            "type": "chrome",
             "request": "launch",
-            "python": "${workspaceFolder}/venv/bin/python",
-            "program": "${workspaceFolder}/scripts/add_persons.py",
-            "args": [],
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}"
-            },
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Debug Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "python": "${workspaceFolder}/venv/bin/python",
-            "program": "${file}",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}"
-            },
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Python: Remote Attach",
-            "type": "debugpy",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5678
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}",
-                    "remoteRoot": "."
-                }
-            ],
-            "justMyCode": false
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/frontend/src"
         }
     ],
     "compounds": [
         {
-            "name": "Full Stack (API + Recognition)",
+            "name": "Full Stack: Debug Both",
             "configurations": [
-                "FastAPI Server",
-                "Face Recognition with API"
+                "Backend: FastAPI"
             ],
+            "preLaunchTask": "Start Frontend",
             "stopAll": true
         }
     ]

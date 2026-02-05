@@ -1,9 +1,9 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/bin/python",
     "python.terminal.activateEnvironment": true,
     "python.analysis.extraPaths": [
-        "${workspaceFolder}",
-        "${workspaceFolder}/ml"
+        "${workspaceFolder}/backend",
+        "${workspaceFolder}/backend/ml"
     ],
     "python.analysis.typeCheckingMode": "basic",
     "python.linting.enabled": true,
@@ -14,7 +14,7 @@
     "files.exclude": {
         "**/__pycache__": true,
         "**/*.pyc": true,
-        "**/venv": true,
+        "**/node_modules": true,
         "**/.pytest_cache": true
     },
     "[python]": {
@@ -22,5 +22,11 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
         }
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     }
 }
