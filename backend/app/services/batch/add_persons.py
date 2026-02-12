@@ -184,6 +184,11 @@ class AddPersonsService:
                         shutil.move(src, dst)
                         logger.info(f"Moved {person_name} to backup")
         
+        # Reload features in memory factory to apply changes immediately
+        from ml.factory import reload_features
+        reload_features()
+        logger.info("Reloaded features in memory")
+        
         return {
             "success": True,
             "message": f"Successfully added {len(persons_added)} person(s)",

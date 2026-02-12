@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     
     # MongoDB
     MONGO_DB_URL: str = "mongodb://127.0.0.1:27017"
-    MONGO_DB_NAME: str = "face_recognition_db"
+    MONGO_DB_NAME: str = "smart_ems_db"
     
     # API Configuration
     API_HOST: str = "0.0.0.0"
@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     
     # API Key (set real value in .env)
     API_KEY: str = "change-me-in-production"
+    
+    # Super Admin Configuration
+    SUPER_ADMIN_EMAIL: str = "superadmin@ems.com"
+    SUPER_ADMIN_PASSWORD: str = ""  # Empty means generate random
     
     # Logging
     LOG_LEVEL: str = "INFO"

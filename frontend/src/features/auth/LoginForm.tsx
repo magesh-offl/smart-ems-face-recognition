@@ -1,5 +1,5 @@
-import { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { ROUTES } from '../../config';
 import styles from './LoginForm.module.css';
@@ -52,8 +52,13 @@ export function LoginForm() {
             </div>
 
             <button type="submit" className={styles.button} disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? 'Logging in...' : 'Log In'}
             </button>
+
+            <Link to={ROUTES.FORGOT_PASSWORD} className={styles.link}>
+                Forgot Password?
+            </Link>
         </form>
     );
 }
+

@@ -20,30 +20,48 @@ class BatchRecognitionLogDocument(BaseDocument):
     
     @staticmethod
     def create(
-        person_name: str,
+        student_id: str,
         confidence_score: float,
         source_path: str,
         face_location: Dict[str, int],
         batch_id: str,
         total_faces_detected: int,
-        processing_time_ms: Optional[float] = None
+        processing_time_ms: Optional[float] = None,
+        admission_id: str = "",
+        first_name: str = "",
+        last_name: str = "",
+        course_id: str = "",
+        course_name: str = "",
+        section: str = ""
     ) -> Dict[str, Any]:
         """Create a new batch recognition log document.
         
         Args:
-            person_name: Name of recognized person (or "Unknown")
+            student_id: Student ID (may be same as admission_id initially)
             confidence_score: Recognition confidence (0.0 - 1.0)
             source_path: Path to the source image
             face_location: Bounding box {x_min, y_min, x_max, y_max}
             batch_id: UUID for this batch operation
             total_faces_detected: Total faces found in image
             processing_time_ms: Processing time in milliseconds
+            admission_id: Stable admission identifier (npz key)
+            first_name: Student's first name
+            last_name: Student's last name
+            course_id: Course ID (e.g., CRS0001)
+            course_name: Course name
+            section: Section (e.g., A, B)
             
         Returns:
             Document dictionary ready for MongoDB insertion
         """
         doc = {
-            "person_name": person_name,
+            "admission_id": admission_id,
+            "student_id": student_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "course_id": course_id,
+            "course_name": course_name,
+            "section": section,
             "detection_datetime": datetime.utcnow(),
             "confidence_score": confidence_score,
             "source_path": source_path,
@@ -54,3 +72,4 @@ class BatchRecognitionLogDocument(BaseDocument):
             **BaseDocument.get_base_fields()
         }
         return doc
+

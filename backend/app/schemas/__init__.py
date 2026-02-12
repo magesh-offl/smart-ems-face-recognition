@@ -23,6 +23,8 @@ from .requests import (
     UserCreate,
     UserUpdate,
     LoginRequest,
+    RegisterRequest,
+    ForgotPasswordRequest,
     APIKeyCreate,
 )
 
@@ -58,6 +60,8 @@ __all__ = [
     "UserCreate",
     "UserUpdate",
     "LoginRequest",
+    "RegisterRequest",
+    "ForgotPasswordRequest",
     "APIKeyCreate",
     # Responses
     "RecognitionLogResponse",

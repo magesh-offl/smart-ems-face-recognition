@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthGuard } from './features/auth';
+import { AuthGuard, AdmissionGuard, TeacherGuard } from './features/auth';
 import { DashboardLayout } from './layouts';
-import { LoginPage, DashboardPage, RecognitionPage, PersonsPage } from './pages';
+import { LoginPage, ForgotPasswordPage, DashboardPage, RecognitionPage, PersonsPage, AdmissionPage } from './pages';
 import { ROUTES } from './config';
 import './index.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 0, // Always refetch on navigation
       retry: 1,
     },
   },
@@ -22,6 +22,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
 
           {/* Protected Routes */}
           <Route
@@ -34,14 +35,25 @@ function App() {
               </AuthGuard>
             }
           />
+          {/* Admin Routes */}
+          <Route
+            path={ROUTES.ADMISSION}
+            element={
+              <AdmissionGuard>
+                <DashboardLayout>
+                  <AdmissionPage />
+                </DashboardLayout>
+              </AdmissionGuard>
+            }
+          />
           <Route
             path={ROUTES.RECOGNITION}
             element={
-              <AuthGuard>
+              <TeacherGuard>
                 <DashboardLayout>
                   <RecognitionPage />
                 </DashboardLayout>
-              </AuthGuard>
+              </TeacherGuard>
             }
           />
           <Route
@@ -55,8 +67,8 @@ function App() {
             }
           />
 
-          {/* Redirect root to dashboard */}
-          <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+          {/* Redirect root to login */}
+          <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.LOGIN} replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
@@ -64,3 +76,4 @@ function App() {
 }
 
 export default App;
+

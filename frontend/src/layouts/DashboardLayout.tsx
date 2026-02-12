@@ -1,16 +1,24 @@
-import { ReactNode, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, type ReactNode } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
 import { ROUTES } from '../config';
-import { Home, Camera, Users, LogOut, Menu, X } from 'lucide-react';
+import { Home, Camera, Users, Settings, LogOut, Menu, ChevronLeft } from 'lucide-react';
 import styles from './DashboardLayout.module.css';
 
 interface DashboardLayoutProps {
     children: ReactNode;
 }
 
-const navItems = [
+interface NavItem {
+    path: string;
+    icon: typeof Home;
+    label: string;
+    adminOnly?: boolean;
+}
+
+const navItems: NavItem[] = [
     { path: ROUTES.DASHBOARD, icon: Home, label: 'Dashboard' },
+    { path: ROUTES.ADMISSION, icon: Settings, label: 'Admission', adminOnly: true },
     { path: ROUTES.RECOGNITION, icon: Camera, label: 'Recognition' },
     { path: ROUTES.PERSONS, icon: Users, label: 'Persons' },
 ];
@@ -18,10 +26,18 @@ const navItems = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const location = useLocation();
-    const { logout } = useAuth();
+    const navigate = useNavigate();
+    const { logout, isAdmin } = useAuth();
+
+    const visibleNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
+
+    const handleLogout = () => {
+        logout();
+        navigate(ROUTES.LOGIN);
+    };
 
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
             <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : styles.closed}`}>
                 <div className={styles.logo}>
                     <span className={styles.logoIcon}>🎓</span>
@@ -29,7 +45,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
 
                 <nav className={styles.nav}>
-                    {navItems.map(({ path, icon: Icon, label }) => (
+                    {visibleNavItems.map(({ path, icon: Icon, label }) => (
                         <Link
                             key={path}
                             to={path}
@@ -41,7 +57,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     ))}
                 </nav>
 
-                <button className={styles.logoutBtn} onClick={logout}>
+                <button className={styles.logoutBtn} onClick={handleLogout}>
                     <LogOut size={20} />
                     {isSidebarOpen && <span>Logout</span>}
                 </button>
@@ -53,7 +69,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         className={styles.menuBtn}
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     >
-                        {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                        {isSidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
                     </button>
                     <h1 className={styles.pageTitle}>
                         {navItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}

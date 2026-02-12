@@ -28,5 +28,8 @@
     },
     "[typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+    },
+    // Browser settings for debugging
+    "debug.javascript.defaultRuntimeExecutable.pwa-chrome": "google-chrome",
+    "debug.javascript.defaultRuntimeExecutable.chrome": "google-chrome"
 }

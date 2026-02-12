@@ -95,6 +95,18 @@ logs/
 # datasets/
 
 # ===========================
+# Node.js / Frontend
+# ===========================
+node_modules/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
 # Testing & Coverage
 # ===========================
 .coverage
@@ -115,12 +127,34 @@ htmlcov/
 *.manifest
 *.spec
 
+# ===========================
 # Large ML model weights (download separately)
-ml/recognition/adaface/weights/*.ckpt
-ml/recognition/adaface/weights/*.safetensors
-ml/recognition/adaface/weights/models--*
-ml/recognition/arcface/weights/*.pth
-ml/detection/scrfd/weights/*.onnx
-ml/detection/yolov12/weights/*.pt
-datasets/face_features/*.npz
-datasets/
+# ===========================
+backend/ml/recognition/adaface/weights/*.ckpt
+backend/ml/recognition/adaface/weights/*.safetensors
+backend/ml/recognition/adaface/weights/models--*
+backend/ml/recognition/arcface/weights/*.pth
+backend/ml/detection/scrfd/weights/*.onnx
+backend/ml/detection/yolov12/weights/*.pt
+
+# ===========================
+# Datasets
+# ===========================
+# Ignore everything in datasets initially
+backend/datasets/*
+
+# Explicitly ignore files inside specific folders but unignore the folders themselves
+# Data folder
+!backend/datasets/data/
+backend/datasets/data/*
+
+# Backup folder
+!backend/datasets/backup/
+backend/datasets/backup/*
+
+# New Persons folder
+!backend/datasets/new_persons/
+backend/datasets/new_persons/*
+
+# Face features
+backend/datasets/face_features/*.npz

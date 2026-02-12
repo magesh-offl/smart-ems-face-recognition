@@ -1,6 +1,18 @@
 """Auth Response Schemas"""
+from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
+
+
+class UserInfo(BaseModel):
+    """User information included in token response"""
+    user_id: str
+    username: str
+    email: str
+    role_id: str
+    role: Optional[str] = None
+    first_name: str = ""
+    last_name: str = ""
 
 
 class TokenResponse(BaseModel):
@@ -8,6 +20,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
+    user: Optional[UserInfo] = None
 
 
 class APIKeyResponse(BaseModel):
@@ -31,3 +44,4 @@ class APIKeyResponse(BaseModel):
             key=doc.get('key'),
             created_at=doc.get('created_at')
         )
+

@@ -2,7 +2,7 @@
 from .recognition import RecognitionLogCreate, RecognitionLogUpdate
 from .batch import BatchRecognitionRequest, AddPersonsRequest
 from .user import UserCreate, UserUpdate
-from .auth import LoginRequest, APIKeyCreate
+from .auth import LoginRequest, RegisterRequest, ForgotPasswordRequest, APIKeyCreate
 
 __all__ = [
     "RecognitionLogCreate",
@@ -12,5 +12,7 @@ __all__ = [
     "UserCreate", 
     "UserUpdate",
     "LoginRequest",
+    "RegisterRequest",
+    "ForgotPasswordRequest",
     "APIKeyCreate",
 ]

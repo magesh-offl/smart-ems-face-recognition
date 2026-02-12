@@ -1,0 +1,346 @@
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+.fixedHeader {
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    flex-shrink: 0;
+}
+
+.scrollContent {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    color: #1a1a2e;
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #6b7280;
+    margin: 0;
+}
+
+.stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.statCard {
+    background: #ffffff;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.statValue {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.statLabel {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+/* Filter Bar */
+.filterBar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.searchBox {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #1a1a2e;
+    font-size: 0.9rem;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.searchInput::placeholder {
+    color: #9ca3af;
+}
+
+.courseSelect {
+    padding: 0.75rem 2rem 0.75rem 1rem;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #1a1a2e;
+    font-size: 0.9rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    min-width: 180px;
+}
+
+.courseSelect:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.courseSelect option {
+    background: #ffffff;
+    color: #1a1a2e;
+}
+
+.refreshBtn {
+    padding: 0.75rem 1.25rem;
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.refreshBtn:hover {
+    background: #f3f4f6;
+    transform: translateY(-1px);
+}
+
+.resetBtn {
+    padding: 0.75rem 1.25rem;
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.resetBtn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    transform: translateY(-1px);
+}
+
+/* Loading / Error / Empty States */
+.loading,
+.error,
+.empty {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+    background: #f8f9fb;
+    border-radius: 12px;
+}
+
+.error {
+    background: rgba(239, 68, 68, 0.06);
+    color: #dc2626;
+}
+
+.empty {
+    background: #f8f9fb;
+}
+
+.emptyIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.empty h3 {
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Result Count */
+.resultCount {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Persons Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    background: #f8f9fb;
+    border-color: rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.cardAvatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatarIcon {
+    font-size: 1.5rem;
+}
+
+.cardContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.cardName {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cardId {
+    font-family: 'Consolas', monospace;
+    color: #667eea;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.cardAdmissionId {
+    font-family: 'Consolas', monospace;
+    color: #d97706;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.cardCourse {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.cardStatus {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.trained {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+
+.pending {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+}
+
+.unknown {
+    background: rgba(156, 163, 175, 0.1);
+    color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .filterBar {
+        flex-direction: column;
+    }
+
+    .searchBox {
+        min-width: 100%;
+    }
+
+    .courseSelect {
+        width: 100%;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

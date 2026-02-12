@@ -10,7 +10,13 @@ export const APP_DESCRIPTION = 'Education Management System with Face Recognitio
 export const ROUTES = {
     HOME: '/',
     LOGIN: '/login',
+    FORGOT_PASSWORD: '/forgot-password',
     DASHBOARD: '/dashboard',
     RECOGNITION: '/recognition',
     PERSONS: '/persons',
+    ADMISSION: '/admission',
+    ADMISSION_STUDENTS: '/admission/students',
+    ADMISSION_COURSES: '/admission/courses',
+    ADMISSION_PASSWORD_RESETS: '/admission/password-resets',
 } as const;
+

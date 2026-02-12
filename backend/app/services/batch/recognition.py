@@ -1,4 +1,5 @@
 """Batch Recognition Service with Face Detection and Recognition"""
+import asyncio
 import os
 import sys
 import time
@@ -123,6 +124,10 @@ def _recognize_face(face_image) -> Tuple[float, str]:
     query_emb = _get_face_embedding(face_image)
     images_names, images_embs = _get_features()
     
+    # Guard: No trained data available
+    if images_names is None or images_embs is None or len(images_names) == 0:
+        return 0.0, "unknown"
+    
     score, best_idx = compare_embeddings(query_emb, images_embs)
     name = images_names[best_idx]
     
@@ -145,17 +150,11 @@ class BatchRecognitionService(IBatchRecognitionService):
         """
         self.repo = repository
     
-    async def process_image(self, image_path: str) -> Dict[str, Any]:
+    def _process_image_sync(self, image_path: str) -> Dict[str, Any]:
         """
-        Process an image for face recognition.
-        
-        Args:
-            image_path: Path to the image file
-            
-        Returns:
-            Dict with batch_id, results, and metadata
+        Synchronous CPU-bound face detection and recognition.
+        This runs in a thread pool to avoid blocking the async event loop.
         """
-        # Lazy import ML dependencies
         import cv2
         import numpy as np
         
@@ -190,7 +189,6 @@ class BatchRecognitionService(IBatchRecognitionService):
         detection_results = detector.detect(image=preprocessed_image)
         
         results = []
-        documents = []
         total_faces = 0
         
         if detection_results is not None:
@@ -241,10 +239,46 @@ class BatchRecognitionService(IBatchRecognitionService):
         # Calculate processing time
         processing_time_ms = (time.time() - start_time) * 1000
         
-        # Create database documents
+        logger.info(
+            f"Processed image {image_path}: {total_faces} faces detected, "
+            f"{len(results)} recognized in {processing_time_ms:.2f}ms"
+        )
+        
+        return {
+            "batch_id": batch_id,
+            "total_faces": total_faces,
+            "results": results,
+            "processing_time_ms": processing_time_ms,
+            "image_path": image_path
+        }
+    
+    async def process_image(self, image_path: str) -> Dict[str, Any]:
+        """
+        Process an image for face recognition.
+        Offloads CPU-bound ML work to a thread pool so other requests aren't blocked.
+        
+        Args:
+            image_path: Path to the image file
+            
+        Returns:
+            Dict with batch_id, results, and metadata
+        """
+        # Run CPU-bound ML work in a thread pool to not block the event loop
+        sync_result = await asyncio.to_thread(self._process_image_sync, image_path)
+        
+        batch_id = sync_result["batch_id"]
+        total_faces = sync_result["total_faces"]
+        results = sync_result["results"]
+        processing_time_ms = sync_result["processing_time_ms"]
+        
+        # Create database documents (async DB operations stay on event loop)
+        documents = []
         for result in results:
+            # person_name from npz is now admission_id
+            admission_id = result["person_name"]
             doc = BatchRecognitionLogDocument.create(
-                person_name=result["person_name"],
+                student_id=admission_id,  # Will be enriched later with actual student_id
+                admission_id=admission_id,
                 confidence_score=result["confidence_score"],
                 source_path=image_path,
                 face_location=result["face_location"],
@@ -254,17 +288,11 @@ class BatchRecognitionService(IBatchRecognitionService):
             )
             documents.append(doc)
         
-        # Save to database
+        # Save to database (async)
         if documents:
             inserted_ids = await self.repo.save_batch_logs(documents)
-            # Add IDs to results
             for i, result in enumerate(results):
                 result["_id"] = inserted_ids[i]
-        
-        logger.info(
-            f"Processed image {image_path}: {total_faces} faces detected, "
-            f"{len(results)} recognized in {processing_time_ms:.2f}ms"
-        )
         
         return {
             "batch_id": batch_id,

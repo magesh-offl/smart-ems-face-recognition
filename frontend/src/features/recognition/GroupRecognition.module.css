@@ -1,0 +1,628 @@
+.container {
+    padding: 0;
+    max-width: 1000px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fixedHeader {
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    flex-shrink: 0;
+}
+
+.scrollContent {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.title {
+    color: #1a1a2e;
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* Source Buttons */
+.sourceButtons {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.sourceBtn {
+    padding: 0.6rem 1.2rem;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.sourceBtn:hover:not(:disabled) {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+}
+
+.sourceBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Upload Area */
+.uploadArea {
+    border: 2px dashed #d1d5db;
+    border-radius: 16px;
+    padding: 4rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fb;
+}
+
+.uploadArea:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.04);
+}
+
+.uploadIcon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.uploadText {
+    color: #1a1a2e;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.uploadHint {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.hiddenInput {
+    display: none;
+}
+
+/* Preview Section */
+.previewSection {
+    margin-top: 0.5rem;
+}
+
+.previewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.imageCount {
+    font-size: 0.95rem;
+    color: #374151;
+    font-weight: 600;
+}
+
+.previewHeaderActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.clearAllBtn {
+    padding: 0.4rem 0.75rem;
+    background: #fff;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clearAllBtn:hover {
+    background: #fef2f2;
+}
+
+/* Thumbnail Grid */
+.previewGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f8f9fb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.thumbCard {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s;
+}
+
+.thumbCard.processing {
+    border-color: #667eea;
+    animation: thumbPulse 1s ease-in-out infinite;
+}
+
+.thumbCard.done {
+    border-color: #16a34a;
+}
+
+.thumbCard.error {
+    border-color: #dc2626;
+}
+
+@keyframes thumbPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+}
+
+.thumbImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.thumbSpinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.thumbBadge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #16a34a;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.thumbBadgeError {
+    background: #dc2626;
+}
+
+.thumbRemove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.thumbCard:hover .thumbRemove {
+    opacity: 1;
+}
+
+.addMoreBtn {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    background: transparent;
+    color: #6b7280;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.addMoreBtn:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.04);
+}
+
+/* Progress */
+.progressSection {
+    margin-bottom: 1rem;
+}
+
+.progressBar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.progressText {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* Action Bar */
+.actionBar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.analyzeBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.analyzeBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.analyzeBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.summaryBadges {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.doneBadge {
+    padding: 0.4rem 0.75rem;
+    background: rgba(22, 163, 74, 0.08);
+    color: #16a34a;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.errorBadge {
+    padding: 0.4rem 0.75rem;
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Results */
+.results {
+    margin-top: 2rem;
+}
+
+.resultsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.resultsTitle {
+    font-size: 1.3rem;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+/* Result Group (collapsible per image) */
+.resultGroup {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.resultGroupHeader {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    background: #f8f9fb;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.resultGroupHeader:hover {
+    background: #f0f1f5;
+}
+
+.resultGroupTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.resultThumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+}
+
+.resultGroupInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.resultFileName {
+    font-weight: 600;
+    color: #1a1a2e;
+    font-size: 0.95rem;
+}
+
+.resultFileNameSub {
+    font-weight: 400;
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+.resultSummary {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.resultError {
+    font-size: 0.85rem;
+    color: #dc2626;
+}
+
+.recognized {
+    color: #16a34a;
+}
+
+.unknown {
+    color: #d97706;
+}
+
+.expandIcon {
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+/* Result Group Body */
+.resultGroupBody {
+    padding: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.statsBar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat {
+    background: #f8f9fb;
+    border-radius: 10px;
+    padding: 0.875rem;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+.statValue {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.15rem;
+}
+
+.statLabel {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+/* Students Section */
+.studentsSection {
+    margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+    color: #1a1a2e;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.studentsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+}
+
+.studentCard {
+    background: #f8f9fb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.studentCard:hover {
+    background: #f0f1f5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.studentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.studentId {
+    font-family: 'Consolas', monospace;
+    font-size: 0.8rem;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.08);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.confidence {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.highConfidence {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+
+.mediumConfidence {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+}
+
+.lowConfidence {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.studentName {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.4rem;
+}
+
+.studentDetails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.courseBadge {
+    background: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+/* Unknown Section */
+.unknownSection {
+    background: rgba(251, 191, 36, 0.06);
+    border: 1px solid rgba(251, 191, 36, 0.15);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.unknownText {
+    color: #374151;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .statsBar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sourceButtons {
+        flex-wrap: wrap;
+    }
+
+    .previewGrid {
+        gap: 0.5rem;
+    }
+
+    .thumbCard {
+        width: 65px;
+        height: 65px;
+    }
+
+    .addMoreBtn {
+        width: 65px;
+        height: 65px;
+    }
+}

@@ -54,16 +54,32 @@
             "type": "chrome",
             "request": "launch",
             "url": "http://localhost:5173",
-            "webRoot": "${workspaceFolder}/frontend/src"
+            "webRoot": "${workspaceFolder}/frontend/src",
+            "runtimeExecutable": "stable",
+            "preLaunchTask": "Start Frontend",
+            "postDebugTask": "Stop Frontend",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*"
+            }
+        },
+        {
+            "name": "Frontend: Edge",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/frontend/src",
+            "preLaunchTask": "Start Frontend",
+            "sourceMaps": true
         }
     ],
     "compounds": [
         {
             "name": "Full Stack: Debug Both",
             "configurations": [
-                "Backend: FastAPI"
+                "Backend: FastAPI",
+                "Frontend: Chrome"
             ],
-            "preLaunchTask": "Start Frontend",
             "stopAll": true
         }
     ]

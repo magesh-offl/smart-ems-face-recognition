@@ -1,3 +1,4 @@
 export { LoginForm } from './LoginForm';
-export { AuthGuard } from './AuthGuard';
+export { ForgotPasswordForm } from './ForgotPasswordForm';
+export { AuthGuard, AdmissionGuard, TeacherGuard } from './AuthGuard';
 export { useAuth } from './useAuth';
