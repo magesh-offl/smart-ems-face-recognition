@@ -140,21 +140,11 @@ backend/ml/detection/yolov12/weights/*.pt
 # ===========================
 # Datasets
 # ===========================
-# Ignore everything in datasets initially
-backend/datasets/*
-
-# Explicitly ignore files inside specific folders but unignore the folders themselves
-# Data folder
-!backend/datasets/data/
+# ===========================
+# Datasets
+# ===========================
+# Ignore contents of specific folders but track the folders themselves
 backend/datasets/data/*
-
-# Backup folder
-!backend/datasets/backup/
 backend/datasets/backup/*
-
-# New Persons folder
-!backend/datasets/new_persons/
 backend/datasets/new_persons/*
-
-# Face features
-backend/datasets/face_features/*.npz
+backend/datasets/face_features/*
