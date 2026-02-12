@@ -1,157 +1,70 @@
 # Smart EMS Face Recognition System
 
-A production-ready face recognition system with configurable detection and recognition models, FastAPI REST API, and MongoDB integration.
+A production-ready, full-stack face recognition system designed for educational institutions. It features configurable detection and recognition models (YOLOv12, AdaFace), a robust FastAPI backend, and a modern React frontend with MongoDB integration.
 
-## ✨ Features
+![Dashboard Preview](frontend/public/vite.svg)  
+*(Replace with actual screenshot if available)*
 
-- **Face Detection**: YOLOv12 or SCRFD (configurable)
-- **Face Recognition**: AdaFace or ArcFace (configurable)
-- **REST API**: FastAPI with batch recognition endpoints
-- **Database**: MongoDB for logging recognition results
-- **Centralized Config**: Change models in one place (`ml/config.py`)
-- **Clean Architecture**: API → Controller → Service → Repository
+## ✨ Key Features
 
-## 🚀 Quick Start
+- **Advanced AI**: Uses state-of-the-art models for face detection (YOLOv12/SCRFD) and recognition (AdaFace/ArcFace).
+- **Full Stack Solution**: complete separation of concerns with a RESTful API backend and a responsive React frontend.
+- **Configurable**: Easily switch between models via `backend/ml/config.py`.
+- **Database Integrated**: Checkpoints and recognition history logged to MongoDB.
+- **User-Friendly UI**: Modern dashboard for managing students, training models, and viewing recognition history.
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/Smiley-Magesh/smart-ems-face-recognition.git
-cd smart-ems-face-recognition
-```
+---
 
-### 2. Create Virtual Environment
-```bash
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-```
+## 🚀 Getting Started
 
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+For detailed installation instructions, including manual ML model downloads and environment configuration, please see the **[Setup Guide](setup.md)**.
 
-### 4. Download Model Weights
+### Quick Summary
 
-**⚠️ IMPORTANT**: Model weights are not included due to size. Download them to the paths below:
+1.  **Clone the Repo**: `git clone https://github.com/Smiley-Magesh/smart-ems-face-recognition.git`
+2.  **Backend Setup**:
+    *   Create venv & install requirements.
+    *   **Download ML Models** (Critical step! See setup.md).
+    *   Configure `.env`.
+    *   Run with `uvicorn`.
+3.  **Frontend Setup**:
+    *   `npm install`
+    *   `npm run dev`
 
-| Model | Size | Download | Save To |
-|-------|------|----------|---------|
-| **SCRFD** | 3MB | [Download](https://github.com/deepinsight/insightface/releases/download/v0.7/scrfd_2.5g_bnkps.onnx) | `ml/detection/scrfd/weights/scrfd_2.5g_bnkps.onnx` |
-| **YOLOv12** | 5MB | [Download](https://github.com/akanametov/yolo-face/releases/download/v1.0.0/yolov12n-face.pt) | `ml/detection/yolov12/weights/yolov12n-face.pt` |
-| **ArcFace** | 249MB | [Download](https://drive.google.com/file/d/1o1m-eT38Q3P86BMsT4QcNfDgQMVlEZvA/view) | `ml/recognition/arcface/weights/arcface_r100.pth` |
-| **AdaFace** | 683MB | [Download](https://github.com/mk-minchul/AdaFace/releases/download/Pretrained/adaface_ir100_webface12m.ckpt) | `ml/recognition/adaface/weights/adaface_ir100_webface12m.ckpt` |
+---
 
-Or use wget/curl:
-```bash
-# SCRFD (included in repo)
-# YOLOv12 (included in repo)
+## 📖 Usage Workflow
 
-# ArcFace
-wget -O ml/recognition/arcface/weights/arcface_r100.pth \
-  "https://drive.google.com/uc?export=download&id=1o1m-eT38Q3P86BMsT4QcNfDgQMVlEZvA"
+### 1. 🎓 Admission & Training
+1.  Navigate to the **Admission** page.
+2.  Add a new student (ID, Name, Course).
+3.  **Train Face**:
+    *   Use the webcam to capture samples OR upload images.
+    *   The system aligns and extracts features automatically.
+    *   Click "Save" to register the student in the database.
 
-# AdaFace
-wget -O ml/recognition/adaface/weights/adaface_ir100_webface12m.ckpt \
-  "https://github.com/mk-minchul/AdaFace/releases/download/Pretrained/adaface_ir100_webface12m.ckpt"
-```
+### 2. 🔍 Recognition
+1.  Go to the **Recognition** page.
+2.  **Upload & Recognize**:
+    *   Upload a group photo or single image.
+    *   The system detects all faces and attempts to match them against the database.
+    *   **Results**: Matched faces are identified with confidence scores. Unknown faces are marked.
+3.  **History**: View past recognition logs in the "History" tab or the dedicated "Recognition History" page.
 
-### 5. Configure Environment
-```bash
-cp .env.example .env
-# Edit .env with your settings (MongoDB URL, API key, etc.)
-```
+### 3. 👥 Manage Persons
+1.  Use the **Persons** page to view all registered individuals.
+2.  Manage their associated images and re-train if necessary.
 
-### 6. Run Application
-```bash
-python run.py
-```
+---
 
-API available at: **http://localhost:8000/docs**
+## �️ Technology Stack
 
-## ⚙️ Configuration
-
-Change models in **one place** - `ml/config.py`:
-
-```python
-# Detection model: "scrfd" or "yolov12"
-DETECTION_MODEL = "yolov12"
-
-# Recognition model: "arcface" or "adaface"
-RECOGNITION_MODEL = "adaface"
-```
-
-> **Note**: When changing `RECOGNITION_MODEL`, you must re-add persons using the API to regenerate embeddings.
-
-## 📡 API Endpoints
-
-### Batch Recognition
-```bash
-# Process an image and recognize faces
-POST /api/v1/recognition/batch/process
-Content-Type: application/json
-X-API-Key: your-api-key
-
-{
-  "image_path": "/path/to/group_photo.jpg"
-}
-```
-
-### Add Training Persons
-```bash
-# Add persons from folders (each folder = one person)
-POST /api/v1/recognition/persons/add
-Content-Type: application/json
-X-API-Key: your-api-key
-
-{
-  "source_path": "/path/to/training_images"
-}
-```
-
-Expected folder structure:
-```
-training_images/
-├── Person1/
-│   ├── photo1.jpg
-│   ├── photo2.jpg
-├── Person2/
-│   ├── photo1.jpg
-...
-```
-
-## 🏗️ Project Structure
-
-```
-├── app/                    # FastAPI Application
-│   ├── api/v1/            # API routes
-│   ├── controllers/       # Request orchestration
-│   ├── services/          # Business logic
-│   ├── repositories/      # Database operations
-│   ├── schemas/           # Pydantic models
-│   └── models/            # Database models
-├── ml/                     # Machine Learning
-│   ├── config.py          # Model configuration
-│   ├── factory.py         # Model factory functions
-│   ├── detection/         # Face detectors (SCRFD, YOLOv12)
-│   ├── recognition/       # Face recognizers (ArcFace, AdaFace)
-│   └── alignment/         # Face alignment utilities
-├── datasets/              # Training data (not in repo)
-│   ├── data/              # Aligned face images
-│   ├── face_features/     # Pre-computed embeddings
-│   └── backup/            # Original images
-├── docs/                  # Documentation
-├── http/                  # HTTP test files
-└── scripts/               # Utility scripts
-```
-
-## 🔧 Requirements
-
-- Python 3.8+
-- MongoDB
-- CUDA (optional, for GPU acceleration)
+- **Backend**: Python 3.10+, FastAPI, PyTorch, Ultralytics (YOLO), InsightFace (SCRFD/ArcFace).
+- **Frontend**: React 18, Vite, TypeScript, TailwindCSS/CSS Modules.
+- **Database**: MongoDB.
+- **Tools**: Docker (optional), Git.
 
 ## 📄 License
-
 MIT
 
 ## 🙏 Acknowledgements
