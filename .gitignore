@@ -59,6 +59,7 @@ env/
 .vscode/*
 !.vscode/settings.json
 !.vscode/launch.json
+!.vscode/tasks.json
 !.vscode/extensions.json
 
 # ===========================
@@ -134,8 +135,8 @@ backend/ml/recognition/adaface/weights/*.ckpt
 backend/ml/recognition/adaface/weights/*.safetensors
 backend/ml/recognition/adaface/weights/models--*
 backend/ml/recognition/arcface/weights/*.pth
-backend/ml/detection/scrfd/weights/*.onnx
-backend/ml/detection/yolov12/weights/*.pt
+#backend/ml/detection/scrfd/weights/*.onnx
+#backend/ml/detection/yolov12/weights/*.pt
 
 # ===========================
 # Datasets
