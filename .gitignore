@@ -145,6 +145,13 @@ backend/ml/detection/yolov12/weights/*.pt
 # ===========================
 # Ignore contents of specific folders but track the folders themselves
 backend/datasets/data/*
+!backend/datasets/data/.gitkeep
+
 backend/datasets/backup/*
+!backend/datasets/backup/.gitkeep
+
 backend/datasets/new_persons/*
+!backend/datasets/new_persons/.gitkeep
+
 backend/datasets/face_features/*
+!backend/datasets/face_features/.gitkeep
