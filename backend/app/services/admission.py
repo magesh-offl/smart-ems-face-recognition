@@ -23,6 +23,7 @@ from app.repositories.course import CourseRepository
 from app.repositories.student_log import StudentLogRepository
 from app.services.id_generator import IDGeneratorService
 from app.services.auth.service import AuthService
+from app.core.inference_client import InferenceClient
 from app.utils.logger import setup_logger
 from app.config import get_settings
 
@@ -44,7 +45,8 @@ class AdmissionService:
         admission_repo: AdmissionRepository,
         course_repo: CourseRepository,
         id_generator: IDGeneratorService,
-        auth_service: AuthService
+        auth_service: AuthService,
+        inference_client: InferenceClient = None,
     ):
         self.user_repo = user_repo
         self.student_repo = student_repo
@@ -52,6 +54,7 @@ class AdmissionService:
         self.course_repo = course_repo
         self.id_generator = id_generator
         self.auth_service = auth_service
+        self.inference_client = inference_client or InferenceClient()
         self.student_log_repo = StudentLogRepository()
     
     def _validate_name(self, value: str, field_name: str):
@@ -255,13 +258,20 @@ class AdmissionService:
             "saved_files": saved_files
         }
     
+    # Supported image extensions for face training
+    IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.webp')
+
     async def process_student_faces(self, admission_id: str) -> Dict[str, Any]:
-        """Process face images using ML pipeline.
+        """Process face images using ML pipeline (isolated per student).
         
-        Uses the existing AddPersonsService to:
-        1. Detect faces in images
-        2. Extract embeddings
-        3. Save to feature.npz (keyed by admission_id)
+        Reads images ONLY from this student's folder and sends them
+        directly to the inference service. This ensures concurrent
+        requests from different centres never interfere with each other.
+        
+        1. Read images from new_persons/{admission_id}/
+        2. Send to inference service for detection + embedding
+        3. Update is_trained in DB
+        4. Move images to data/ and backup/
         
         Args:
             admission_id: Admission ID (folder name in datasets)
@@ -269,9 +279,7 @@ class AdmissionService:
         Returns:
             Processing result with trained status
         """
-        from app.services.batch.add_persons import AddPersonsService
         import shutil
-        import os
         
         # Verify admission exists and get student_id
         admission = await self.admission_repo.get_by_admission_id(admission_id)
@@ -287,30 +295,63 @@ class AdmissionService:
         if not images_path.exists() or not list(images_path.glob("*")):
             raise ValueError(f"No images found for admission: {admission_id}")
         
-        # AddPersonsService expects a folder containing person subfolders
-        # where each subfolder name = person_id and contains their images.
-        # The subfolder is named admission_id (stable face recognition key).
-        add_persons_service = AddPersonsService()
+        # Read ONLY this student's images (isolated — no folder scanning)
+        image_files = sorted([
+            f for f in images_path.iterdir()
+            if f.suffix.lower() in self.IMAGE_EXTENSIONS
+        ])
+        image_bytes_list = [f.read_bytes() for f in image_files]
         
-        result = add_persons_service.add_persons_from_folder(
-            source_path=str(self.DATASETS_PATH),
-            move_to_backup=True
+        logger.info(
+            f"Training {admission_id}: sending {len(image_bytes_list)} images "
+            f"to inference service"
         )
         
-        # Check if this admission was processed
+        # Send ONLY this student to inference (each request is isolated)
+        result = await self.inference_client.train(
+            persons_images={admission_id: image_bytes_list},
+            move_to_backup=False,  # backend handles file moves
+        )
+        
+        # Check training result
         persons_added = result.get("persons_added", [])
         trained = admission_id in persons_added
+        faces_processed = result.get("faces_processed", 0)
         
-        # Update is_trained status on the student document
         if trained:
+            # 1. Update is_trained status on the student document
             await self.student_repo.update_trained_status(student_id, True)
-            logger.info(f"Face training completed for admission: {admission_id} (student: {student_id})")
+            logger.info(
+                f"Face training completed for {admission_id} "
+                f"(student: {student_id}, faces: {faces_processed})"
+            )
+            
+            # 2. Move images: new_persons/ADMN_ID/ → data/ and backup/
+            datasets_root = self.DATASETS_PATH.parent  # datasets/ directory
+            data_dest = datasets_root / "data" / admission_id
+            backup_dest = datasets_root / "backup" / admission_id
+            
+            if images_path.exists():
+                try:
+                    # Copy to data/ (for future reference/re-training)
+                    if data_dest.exists():
+                        shutil.rmtree(data_dest)
+                    shutil.copytree(images_path, data_dest)
+                    logger.info(f"Copied images to data: {data_dest}")
+                    
+                    # Move to backup/ (removes original from new_persons/)
+                    if backup_dest.exists():
+                        shutil.rmtree(backup_dest)
+                    shutil.move(str(images_path), str(backup_dest))
+                    logger.info(f"Moved images to backup: {backup_dest}")
+                except Exception as e:
+                    logger.error(f"Error moving images for {admission_id}: {e}")
         
         return {
             "admission_id": admission_id,
             "student_id": student_id,
             "is_trained": trained,
-            "faces_detected": result.get("faces_processed", 0) if trained else 0,
+            "faces_detected": faces_processed,
             "message": f"Training {'completed' if trained else 'failed'} for {admission_id}"
         }
     

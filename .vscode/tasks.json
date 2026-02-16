@@ -37,6 +37,41 @@
             }
         },
         {
+            "label": "Start Inference Service",
+            "type": "shell",
+            "command": "${workspaceFolder}/inference_service/venv/bin/uvicorn",
+            "args": [
+                "app.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8010"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/inference_service",
+                "env": {
+                    "PYTHONPATH": "${workspaceFolder}/inference_service"
+                }
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "."
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "Application startup complete"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "servers"
+            }
+        },
+        {
             "label": "Start Frontend",
             "type": "shell",
             "command": "npm",
@@ -71,6 +106,7 @@
             "label": "Full Stack",
             "dependsOn": [
                 "Start Backend",
+                "Start Inference Service",
                 "Start Frontend"
             ],
             "dependsOrder": "parallel",

@@ -131,19 +131,14 @@ htmlcov/
 # ===========================
 # Large ML model weights (download separately)
 # ===========================
-backend/ml/recognition/adaface/weights/*.ckpt
-backend/ml/recognition/adaface/weights/*.safetensors
-backend/ml/recognition/adaface/weights/models--*
-backend/ml/recognition/arcface/weights/*.pth
-#backend/ml/detection/scrfd/weights/*.onnx
-#backend/ml/detection/yolov12/weights/*.pt
+inference_service/ml/recognition/adaface/weights/*.ckpt
+inference_service/ml/recognition/adaface/weights/*.safetensors
+inference_service/ml/recognition/adaface/weights/models--*
+inference_service/ml/recognition/arcface/weights/*.pth
+#inference_service/ml/detection/scrfd/weights/*.onnx
+#inference_service/ml/detection/yolov12/weights/*.pt
 
-# ===========================
-# Datasets
-# ===========================
-# ===========================
-# Datasets
-# ===========================
+
 # Ignore contents of specific folders but track the folders themselves
 backend/datasets/data/*
 !backend/datasets/data/.gitkeep

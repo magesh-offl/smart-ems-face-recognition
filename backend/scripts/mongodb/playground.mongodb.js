@@ -12,5 +12,5 @@ use("smart_ems_db");
 //         "person_name": 1
 //     });
 
-db.getCollection("users")//.deleteMany({});
+db.getCollection("batch_recognition_logs")//.deleteMany({});
     .find({});

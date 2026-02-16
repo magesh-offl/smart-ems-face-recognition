@@ -24,6 +24,28 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Inference Service: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "python": "${workspaceFolder}/inference_service/venv/bin/python",
+            "args": [
+                "app.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8010"
+            ],
+            "jinja": true,
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/inference_service"
+            },
+            "cwd": "${workspaceFolder}/inference_service",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Backend: Webcam Recognition",
             "type": "debugpy",
             "request": "launch",
@@ -74,6 +96,23 @@
         }
     ],
     "compounds": [
+        {
+            "name": "Full Stack: All Services",
+            "configurations": [
+                "Backend: FastAPI",
+                "Inference Service: FastAPI",
+                "Frontend: Chrome"
+            ],
+            "stopAll": true
+        },
+        {
+            "name": "Services: Backend & Inference",
+            "configurations": [
+                "Backend: FastAPI",
+                "Inference Service: FastAPI"
+            ],
+            "stopAll": true
+        },
         {
             "name": "Full Stack: Debug Both",
             "configurations": [

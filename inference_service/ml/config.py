@@ -44,4 +44,4 @@ CONFIDENCE_THRESHOLD = 0.4  # Minimum similarity score to consider a match
 # =============================================================================
 # ml/config.py is at CompVisn/ml/config.py, so one dirname gets us to CompVisn
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FEATURE_PATH = os.path.join(PROJECT_ROOT, "datasets", "face_features", "feature")
+FEATURE_PATH = os.path.join(PROJECT_ROOT, "datasets", "face_features")

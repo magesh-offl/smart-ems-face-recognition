@@ -6,7 +6,7 @@ from datetime import datetime
 from app.controllers.recognition import RecognitionController
 from app.controllers.batch import BatchRecognitionController, AddPersonsController
 from app.core.dependencies import get_recognition_service, get_batch_recognition_service
-from app.services.batch import AddPersonsService
+from app.core.dependencies.batch import get_add_persons_service
 from app.schemas import (
     RecognitionLogCreate, RecognitionLogResponse, RecognitionLogUpdate,
     BatchRecognitionRequest, BatchRecognitionResponse, AddPersonsRequest
@@ -25,7 +25,7 @@ def get_batch_controller(service=Depends(get_batch_recognition_service)) -> Batc
     return BatchRecognitionController(service)
 
 
-def get_add_persons_controller(service: AddPersonsService = Depends(AddPersonsService)) -> AddPersonsController:
+def get_add_persons_controller(service=Depends(get_add_persons_service)) -> AddPersonsController:
     return AddPersonsController(service)
 
 
@@ -157,7 +157,7 @@ async def add_persons(
     """Add new persons to the face recognition database."""
     source_path = data.source_path if data else None
     move_to_backup = data.move_to_backup if data else True
-    return controller.add_persons(source_path, move_to_backup)
+    return await controller.add_persons(source_path, move_to_backup)
 
 
 @router.get("/persons", response_model=dict)
@@ -166,4 +166,4 @@ async def get_known_persons(
     controller: AddPersonsController = Depends(get_add_persons_controller)
 ):
     """Get list of all known persons in the database."""
-    return controller.get_known_persons()
+    return await controller.get_known_persons()

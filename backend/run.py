@@ -10,6 +10,7 @@ if __name__ == "__main__":
         "app.main:app",  # Import string for uvicorn to reload properly
         host=settings.API_HOST,
         port=settings.API_PORT,
+        workers=settings.WORKERS,
         reload=(settings.API_ENV == "development"),
         log_level=settings.LOG_LEVEL.lower()
     )

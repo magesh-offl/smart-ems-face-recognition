@@ -530,7 +530,7 @@ export function StudentAdmitForm({ onSuccess, onCancel }: StudentAdmitFormProps)
                                     <span className={styles.progressDot}></span>
                                     <span className={styles.progressDot}></span>
                                 </div>
-                                <p className={styles.note}>This may take a few moments depending on the number of images.</p>
+                                {/* <p className={styles.note}>This may take a few moments depending on the number of images.</p> */}
                             </div>
                         </>
                     )}
@@ -540,7 +540,7 @@ export function StudentAdmitForm({ onSuccess, onCancel }: StudentAdmitFormProps)
                             <div className={styles.successIcon}>✓</div>
                             <h3>Student Admitted Successfully!</h3>
                             <p>Student ID: <code>{createdStudentId}</code></p>
-                            <p>The student can now log in with their credentials.</p>
+                            {/* <p>The student can now log in with their credentials.</p> */}
                             <p className={styles.note}>
                                 ✓ Face recognition is trained and ready for attendance.
                                 {trainingResult?.faces_detected && ` (${trainingResult.faces_detected} face(s) processed)`}

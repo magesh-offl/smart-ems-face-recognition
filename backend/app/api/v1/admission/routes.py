@@ -37,13 +37,15 @@ def get_auth_service() -> AuthService:
 
 def get_admission_service() -> AdmissionService:
     """Get AdmissionService with all dependencies."""
+    from app.core.dependencies.batch import get_inference_client
     return AdmissionService(
         user_repo=UserRepository(),
         student_repo=StudentRepository(),
         admission_repo=AdmissionRepository(),
         course_repo=CourseRepository(),
         id_generator=get_id_generator(),
-        auth_service=get_auth_service()
+        auth_service=get_auth_service(),
+        inference_client=get_inference_client(),
     )
 
 

@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     API_ENV: str = "development"
+    WORKERS: int = 1
+    API_CORS_ORIGINS: list[str] = ["http://localhost:5173"]
     
     # JWT Configuration (set real value in .env)
     SECRET_KEY: str = "change-me-in-production"
@@ -26,6 +28,9 @@ class Settings(BaseSettings):
     # Super Admin Configuration
     SUPER_ADMIN_EMAIL: str = "superadmin@ems.com"
     SUPER_ADMIN_PASSWORD: str = ""  # Empty means generate random
+    
+    # Inference Service
+    INFERENCE_SERVICE_URL: str = "http://localhost:8010"
     
     # Logging
     LOG_LEVEL: str = "INFO"

@@ -11,6 +11,8 @@ from app.repositories.student import StudentRepository
 from app.repositories.course import CourseRepository
 from app.repositories.user import UserRepository
 from app.repositories.admission import AdmissionRepository
+from app.core.inference_client import InferenceClient
+from app.core.dependencies.batch import get_inference_client
 from app.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -24,7 +26,10 @@ ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 
 def get_batch_service() -> BatchRecognitionService:
     """Get BatchRecognitionService instance."""
-    return BatchRecognitionService(BatchRecognitionRepository())
+    return BatchRecognitionService(
+        repository=BatchRecognitionRepository(),
+        inference_client=get_inference_client(),
+    )
 
 
 def get_student_repo() -> StudentRepository:
@@ -366,12 +371,10 @@ async def get_known_persons(
     Get all known persons from face recognition database.
     Returns list of person IDs (student IDs) that have face embeddings registered.
     """
-    import asyncio
     from app.services.batch import AddPersonsService
     
-    service = AddPersonsService()
-    # Offload file I/O to thread pool so event loop isn't blocked
-    persons = await asyncio.to_thread(service.list_known_persons)
+    service = AddPersonsService(inference_client=get_inference_client())
+    persons = await service.list_known_persons()
     
     return {
         "success": True,
