@@ -20,7 +20,7 @@ class InferenceSettings(BaseSettings):
     # Server
     INFERENCE_HOST: str = "0.0.0.0"
     INFERENCE_PORT: int = 8010
-    WORKERS: int = 1  # Control multiprocessing (default 1)
+    WORKERS: int = 2  # Control multiprocessing (default 1)
     
     # Environment: "development" or "production"
     # In production: Set this to "production" to disable auto-reload and enable optimizations
@@ -45,6 +45,14 @@ class InferenceSettings(BaseSettings):
     # Paths (relative to PROJECT_ROOT)
     DATASETS_PATH: str = ""  # Will be resolved to absolute path
     FEATURE_PATH: str = ""   # Will be resolved to absolute path
+
+    # Redis (multi-worker feature sync)
+    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_FEATURE_KEY: str = "inference:features"           # gallery data key
+    REDIS_FEATURE_VERSION_KEY: str = "inference:features:version"  # version counter
+    REDIS_CHANNEL: str = "inference:feature_reload"         # pub/sub channel
+    REDIS_LOCK_KEY: str = "inference:train_lock"            # distributed lock
+    REDIS_LOCK_TIMEOUT: int = 300                           # max lock hold (seconds)
 
     # Logging
     LOG_LEVEL: str = "INFO"

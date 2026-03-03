@@ -3,10 +3,19 @@
 Loads and saves feature vectors (.npz) for face recognition.
 Handles adding new persons and reloading the gallery.
 
-Thread-safety: All gallery mutations are serialized via _gallery_lock
-so that concurrent training requests cannot corrupt the .npz file.
-The heavy ML work (detection, alignment, embedding) runs outside the lock.
+Multi-worker support (via Redis):
+    • Gallery cache:  serialised numpy arrays stored in Redis so every
+                      worker reads the same data.
+    • Version counter: workers skip deserialisation when nothing changed.
+    • Pub/Sub:         after training or reload, a message is published so
+                       peer workers refresh their local cache.
+    • Distributed lock: training acquires a Redis lock to prevent
+                        concurrent .npz corruption across workers.
+
+If Redis is unavailable the service degrades gracefully to
+single-worker mode (process-local cache + threading.Lock).
 """
+import io
 import os
 import logging
 import threading
@@ -17,11 +26,116 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-# Lazy-loaded gallery (protected by _gallery_lock)
+# ── Process-local cache ─────────────────────────────────────────────────
 _gallery_names: Optional[np.ndarray] = None
 _gallery_embs: Optional[np.ndarray] = None
-_gallery_lock = threading.Lock()
+_gallery_lock = threading.Lock()       # guards local cache mutations
+_local_version: int = 0               # last-seen Redis version
 
+
+# =====================================================================
+# Redis helpers (serialisation / version counter)
+# =====================================================================
+
+def _serialize_gallery(names: np.ndarray, embs: np.ndarray) -> bytes:
+    """Serialise numpy arrays to bytes for Redis storage."""
+    buf = io.BytesIO()
+    np.savez_compressed(buf, names=names, encodings=embs)
+    return buf.getvalue()
+
+
+def _deserialize_gallery(data: bytes) -> Tuple[np.ndarray, np.ndarray]:
+    """Deserialise bytes from Redis back to numpy arrays."""
+    buf = io.BytesIO(data)
+    npz = np.load(buf, allow_pickle=True)
+    return npz["names"], npz["encodings"]
+
+
+async def _save_to_redis(names: np.ndarray, embs: np.ndarray) -> bool:
+    """Push gallery to Redis and bump the version counter.
+
+    Returns True on success, False if Redis is unavailable.
+    """
+    from app.services.redis_client import get_redis, is_redis_available
+
+    if not is_redis_available():
+        return False
+
+    redis = get_redis()
+    settings = get_settings()
+    try:
+        data = _serialize_gallery(names, embs)
+        pipe = redis.pipeline()
+        pipe.set(settings.REDIS_FEATURE_KEY, data)
+        pipe.incr(settings.REDIS_FEATURE_VERSION_KEY)
+        await pipe.execute()
+        logger.info(
+            f"Gallery pushed to Redis ({len(names)} embeddings, "
+            f"{len(data) / 1024:.1f} KB)"
+        )
+        return True
+    except Exception as e:
+        logger.warning(f"Failed to push gallery to Redis: {e}")
+        return False
+
+
+async def _load_from_redis() -> Optional[Tuple[np.ndarray, np.ndarray]]:
+    """Pull gallery from Redis.
+
+    Returns (names, embeddings) or None if unavailable / empty.
+    """
+    from app.services.redis_client import get_redis, is_redis_available
+
+    if not is_redis_available():
+        return None
+
+    redis = get_redis()
+    settings = get_settings()
+    try:
+        data = await redis.get(settings.REDIS_FEATURE_KEY)
+        if data is None:
+            return None
+        return _deserialize_gallery(data)
+    except Exception as e:
+        logger.warning(f"Failed to load gallery from Redis: {e}")
+        return None
+
+
+async def _get_redis_version() -> int:
+    """Read the current version counter from Redis (0 if unavailable)."""
+    from app.services.redis_client import get_redis, is_redis_available
+
+    if not is_redis_available():
+        return 0
+
+    redis = get_redis()
+    settings = get_settings()
+    try:
+        val = await redis.get(settings.REDIS_FEATURE_VERSION_KEY)
+        return int(val) if val else 0
+    except Exception:
+        return 0
+
+
+async def _publish_reload_event() -> None:
+    """Publish a feature-reload event so peer workers refresh."""
+    from app.services.redis_client import get_redis, is_redis_available
+
+    if not is_redis_available():
+        return
+
+    redis = get_redis()
+    settings = get_settings()
+    try:
+        await redis.publish(settings.REDIS_CHANNEL, b"reload")
+        logger.debug("Published feature_reload event")
+    except Exception as e:
+        logger.warning(f"Failed to publish reload event: {e}")
+
+
+# =====================================================================
+# Public API (called from routes.py, unchanged signatures)
+# =====================================================================
 
 def get_features() -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
     """Get the currently loaded gallery features.
@@ -33,23 +147,73 @@ def get_features() -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         global _gallery_names, _gallery_embs
 
         if _gallery_names is None:
-            _reload_features_unlocked()
+            _reload_features_from_disk()
 
         return _gallery_names, _gallery_embs
 
 
+async def get_features_async() -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    """Async version — checks Redis version and refreshes if stale.
+
+    Prefer this in async route handlers for automatic cross-worker sync.
+    Falls back to synchronous get_features() if Redis is down.
+    """
+    from app.services.redis_client import is_redis_available
+
+    if not is_redis_available():
+        return get_features()
+
+    global _local_version
+    remote_version = await _get_redis_version()
+
+    if remote_version > _local_version:
+        result = await _load_from_redis()
+        if result is not None:
+            with _gallery_lock:
+                global _gallery_names, _gallery_embs
+                _gallery_names, _gallery_embs = result
+                _local_version = remote_version
+                logger.info(
+                    f"Local cache refreshed from Redis (v{remote_version}, "
+                    f"{len(_gallery_names)} embeddings)"
+                )
+
+    with _gallery_lock:
+        if _gallery_names is None:
+            _reload_features_from_disk()
+        return _gallery_names, _gallery_embs
+
+
 def reload_features() -> Tuple[int, int]:
-    """Reload features from disk (.npz file).
+    """Reload features from disk (.npz file).  Synchronous version.
 
     Returns:
         (num_persons, num_embeddings)
     """
     with _gallery_lock:
-        return _reload_features_unlocked()
+        return _reload_features_from_disk()
 
 
-def _reload_features_unlocked() -> Tuple[int, int]:
-    """Internal reload — caller must hold _gallery_lock."""
+async def reload_features_async() -> Tuple[int, int]:
+    """Reload from disk → push to Redis → notify all workers.
+
+    Prefer this in async route handlers.
+    """
+    num_persons, num_embs = reload_features()
+
+    # Push to Redis and notify peers
+    if _gallery_names is not None and _gallery_embs is not None:
+        pushed = await _save_to_redis(_gallery_names, _gallery_embs)
+        if pushed:
+            global _local_version
+            _local_version = await _get_redis_version()
+            await _publish_reload_event()
+
+    return num_persons, num_embs
+
+
+def _reload_features_from_disk() -> Tuple[int, int]:
+    """Internal reload from .npz — caller must hold _gallery_lock."""
     global _gallery_names, _gallery_embs
 
     settings = get_settings()
@@ -68,7 +232,7 @@ def _reload_features_unlocked() -> Tuple[int, int]:
         _gallery_embs = data["encodings"]
         num_persons = len(set(_gallery_names.tolist()))
         num_embeddings = len(_gallery_names)
-        logger.info(f"Reloaded features: {num_persons} persons, {num_embeddings} embeddings")
+        logger.info(f"Reloaded features from disk: {num_persons} persons, {num_embeddings} embeddings")
         return num_persons, num_embeddings
     except Exception as e:
         logger.error(f"Failed to reload features: {e}")
@@ -83,7 +247,7 @@ def list_known_persons() -> List[str]:
         global _gallery_names
 
         if _gallery_names is None:
-            _reload_features_unlocked()
+            _reload_features_from_disk()
 
         if _gallery_names is None:
             return []
@@ -188,3 +352,76 @@ def add_persons(
         "persons_added": persons_added,
         "faces_processed": len(new_names),
     }
+
+
+async def add_persons_async(
+    persons_images: Dict[str, List[np.ndarray]],
+    move_to_backup: bool = True,
+) -> dict:
+    """Async wrapper — trains, saves, pushes to Redis, notifies peers.
+
+    Acquires a distributed Redis lock so only one worker trains at a time.
+    Falls back to local-only if Redis is unavailable.
+    """
+    import asyncio
+    from app.services.redis_client import get_redis, is_redis_available
+
+    if is_redis_available():
+        redis = get_redis()
+        settings = get_settings()
+        lock = redis.lock(
+            settings.REDIS_LOCK_KEY,
+            timeout=settings.REDIS_LOCK_TIMEOUT,
+            blocking_timeout=120,  # wait up to 2 min for a peer to finish training
+        )
+        try:
+            acquired = await lock.acquire()
+            if not acquired:
+                return {
+                    "success": False,
+                    "message": "Another worker is currently training. Try again later.",
+                    "persons_added": [],
+                    "faces_processed": 0,
+                }
+
+            # Run the CPU-heavy training in a thread
+            result = await asyncio.to_thread(
+                add_persons, persons_images, move_to_backup
+            )
+
+            # Push updated gallery to Redis + notify peers
+            if result["success"] and _gallery_names is not None:
+                await _save_to_redis(_gallery_names, _gallery_embs)
+                global _local_version
+                _local_version = await _get_redis_version()
+                await _publish_reload_event()
+
+            return result
+        finally:
+            try:
+                await lock.release()
+            except Exception:
+                pass  # lock may have expired
+    else:
+        # No Redis — run locally (single-worker safe)
+        import asyncio
+        return await asyncio.to_thread(
+            add_persons, persons_images, move_to_backup
+        )
+
+
+async def refresh_from_redis() -> None:
+    """Called by the pub/sub listener when a peer publishes a reload event.
+
+    Pulls the latest gallery from Redis into the local cache.
+    """
+    result = await _load_from_redis()
+    if result is not None:
+        with _gallery_lock:
+            global _gallery_names, _gallery_embs, _local_version
+            _gallery_names, _gallery_embs = result
+            _local_version = await _get_redis_version()
+            logger.info(
+                f"Gallery refreshed via pub/sub (v{_local_version}, "
+                f"{len(_gallery_names)} embeddings)"
+            )

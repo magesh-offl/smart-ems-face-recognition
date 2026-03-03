@@ -119,11 +119,14 @@ async def recognize_faces(request: RecognitionRequest):
     from app.services.recognizer import (
         get_face_embedding, compare_embeddings, align_face,
     )
-    from app.services.feature_store import get_features
+    from app.services.feature_store import get_features_async
 
     settings = get_settings()
     threshold = request.confidence_threshold or settings.CONFIDENCE_THRESHOLD
     image = _decode_image(request.image)
+
+    # Load gallery from Redis-backed cache (async, cross-worker safe)
+    gallery_names, gallery_embs = await get_features_async()
 
     def _run():
         start = time.time()
@@ -143,9 +146,6 @@ async def recognize_faces(request: RecognitionRequest):
         # Detect
         bboxes, landmarks = _detect(preprocessed)
         total_faces = len(bboxes)
-
-        # Load gallery
-        gallery_names, gallery_embs = get_features()
 
         results = []
         for bbox, landmark in zip(bboxes, landmarks):
@@ -230,7 +230,7 @@ async def train_persons(request: TrainRequest):
     Accepts a dict of person_id → list of base64 images.
     Detects faces, extracts embeddings, and appends to .npz gallery.
     """
-    from app.services.feature_store import add_persons
+    from app.services.feature_store import add_persons_async
 
     # Decode all images
     persons_images = {}
@@ -240,13 +240,10 @@ async def train_persons(request: TrainRequest):
             decoded.append(_decode_image(b64))
         persons_images[person_id] = decoded
 
-    def _run():
-        return add_persons(
-            persons_images=persons_images,
-            move_to_backup=request.move_to_backup,
-        )
-
-    result = await asyncio.to_thread(_run)
+    result = await add_persons_async(
+        persons_images=persons_images,
+        move_to_backup=request.move_to_backup,
+    )
 
     return TrainResponse(**result)
 
@@ -258,9 +255,9 @@ async def train_persons(request: TrainRequest):
 @router.post("/features/reload", response_model=ReloadResponse, tags=["Features"])
 async def reload_features():
     """Reload the feature store from disk (e.g. after external training)."""
-    from app.services.feature_store import reload_features as _reload
+    from app.services.feature_store import reload_features_async
 
-    persons_count, embeddings_count = await asyncio.to_thread(_reload)
+    persons_count, embeddings_count = await reload_features_async()
 
     return ReloadResponse(
         status="ok",
