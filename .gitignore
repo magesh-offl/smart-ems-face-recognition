@@ -131,10 +131,10 @@ htmlcov/
 # ===========================
 # Large ML model weights (download separately)
 # ===========================
-inference_service/ml/recognition/adaface/weights/*.ckpt
-inference_service/ml/recognition/adaface/weights/*.safetensors
-inference_service/ml/recognition/adaface/weights/models--*
-inference_service/ml/recognition/arcface/weights/*.pth
+# inference_service/ml/recognition/adaface/weights/*.ckpt
+# inference_service/ml/recognition/adaface/weights/*.safetensors
+# inference_service/ml/recognition/adaface/weights/models--*
+# inference_service/ml/recognition/arcface/weights/*.pth
 #inference_service/ml/detection/scrfd/weights/*.onnx
 #inference_service/ml/detection/yolov12/weights/*.pt
 

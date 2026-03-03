@@ -1,0 +1,4 @@
+inference_service/ml/recognition/adaface/weights/*.ckpt filter=lfs diff=lfs merge=lfs -text
+inference_service/ml/recognition/adaface/weights/*.safetensors filter=lfs diff=lfs merge=lfs -text
+inference_service/ml/recognition/adaface/weights/models--*/** filter=lfs diff=lfs merge=lfs -text
+inference_service/ml/recognition/arcface/weights/*.pth filter=lfs diff=lfs merge=lfs -text
