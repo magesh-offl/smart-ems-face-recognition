@@ -46,28 +46,28 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Backend: Webcam Recognition",
+            "name": "Inference: Webcam Recognition",
             "type": "debugpy",
             "request": "launch",
-            "python": "${workspaceFolder}/backend/venv/bin/python",
-            "program": "${workspaceFolder}/backend/scripts/recognize.py",
+            "python": "${workspaceFolder}/inference_service/venv/bin/python",
+            "program": "${workspaceFolder}/inference_service/scripts/recognize.py",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/backend"
+                "PYTHONPATH": "${workspaceFolder}/inference_service"
             },
-            "cwd": "${workspaceFolder}/backend",
+            "cwd": "${workspaceFolder}/inference_service",
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
-            "name": "Backend: Add Persons",
+            "name": "Inference: Add Persons",
             "type": "debugpy",
             "request": "launch",
-            "python": "${workspaceFolder}/backend/venv/bin/python",
-            "program": "${workspaceFolder}/backend/scripts/add_persons.py",
+            "python": "${workspaceFolder}/inference_service/venv/bin/python",
+            "program": "${workspaceFolder}/inference_service/scripts/add_persons.py",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/backend"
+                "PYTHONPATH": "${workspaceFolder}/inference_service"
             },
-            "cwd": "${workspaceFolder}/backend",
+            "cwd": "${workspaceFolder}/inference_service",
             "console": "integratedTerminal",
             "justMyCode": true
         },

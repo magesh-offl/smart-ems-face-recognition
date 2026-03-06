@@ -129,6 +129,11 @@ htmlcov/
 *.spec
 
 # ===========================
+# Inference Service Scripts (local dev/test only)
+# ===========================
+inference_service/scripts/
+
+# ===========================
 # Large ML model weights (download separately)
 # ===========================
 # inference_service/ml/recognition/adaface/weights/*.ckpt
